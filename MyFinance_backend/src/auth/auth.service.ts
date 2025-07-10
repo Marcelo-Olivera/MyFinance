@@ -5,14 +5,15 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import * as bcrypt from 'bcryptjs';
-import { JwtService } from '@nestjs/jwt'; // Importe o JwtService
+import { JwtService } from '@nestjs/jwt';
+// import { UserRole } from './enums/user-role.enum'; // Não é estritamente necessário importar aqui, pois o default já está na entity
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    private jwtService: JwtService, // Injeta o JwtService
+    private jwtService: JwtService,
   ) {}
 
   async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
@@ -29,17 +30,16 @@ export class AuthService {
     const user = this.usersRepository.create({
       email,
       password: hashedPassword,
+      // `role` não precisa ser explicitamente definido aqui, pois tem um `default: UserRole.USER` na entidade
     });
 
     try {
       await this.usersRepository.save(user);
     } catch (error) {
-      // Lidar com possíveis erros de banco de dados (além de email duplicado)
-      // Para SQLite, o erro pode ser 'SQLITE_CONSTRAINT: UNIQUE constraint failed: user.email'
       if (error.code === '23505' || error.message?.includes('SQLITE_CONSTRAINT')) {
         throw new ConflictException('Este email já está em uso.');
       } else {
-        console.error('Erro ao salvar usuário:', error); // Para depuração
+        console.error('Erro ao salvar usuário:', error);
         throw new InternalServerErrorException('Erro ao registrar o usuário.');
       }
     }
@@ -48,17 +48,15 @@ export class AuthService {
   async signIn(authCredentialsDto: AuthCredentialsDto): Promise<{ accessToken: string }> {
     const { email, password } = authCredentialsDto;
 
-    // 1. Buscar o usuário pelo email
     const user = await this.usersRepository.findOneBy({ email });
 
-    // 2. Verificar se o usuário existe e se a senha está correta
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Credenciais inválidas. Verifique seu email e senha.');
     }
 
-    // 3. Se as credenciais forem válidas, gerar o JWT
-    const payload = { email: user.email, sub: user.id }; // 'sub' é uma convenção para o ID do usuário
-    const accessToken = await this.jwtService.sign(payload); // Assina o payload para criar o token
+    // --- ATUALIZAÇÃO NO PAYLOAD DO JWT: INCLUIR O PAPEL DO USUÁRIO ---
+    const payload = { email: user.email, sub: user.id, role: user.role }; // Adicionamos 'role'
+    const accessToken = await this.jwtService.sign(payload);
 
     return { accessToken };
   }

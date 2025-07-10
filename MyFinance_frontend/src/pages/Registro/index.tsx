@@ -3,16 +3,14 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Button, TextField, Typography, Box, Container, Link } from '@mui/material'; // Removido o Grid
+import { Button, TextField, Typography, Box, Container, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Importe o axios
 
-// Importe sua imagem de background, se estiver usando a Opção 2 (importar diretamente)
-// import backgroundImage from './background.png'; // Ajuste o caminho se necessário
+// --- Defina a URL base do seu backend ---
+const API_BASE_URL = 'http://localhost:3000'; // URL do seu backend NestJS
 
-// Importe sua logo com fundo transparente, se estiver usando a opção de importar
-// import logoImage from './logo.png'; // Ajuste o caminho se necessário (ex: '../../assets/images/logo.png')
-
-// Esquema de validação com Yup atualizado
+// Esquema de validação com Yup (mantido o mesmo)
 const schema = yup.object({
   nome: yup.string().required('Nome é obrigatório'),
   sobrenome: yup.string().required('Sobrenome é obrigatório'),
@@ -31,23 +29,38 @@ const schema = yup.object({
   numero: yup.string().required('Número é obrigatório'),
   complemento: yup.string().nullable(),
   cidade: yup.string().required('Cidade é obrigatória'),
-  estado: yup.string().required('Estado é obrigatório'),
+  estado: yup.string().required('Estado é obrigatória'),
 }).required();
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({ // Adicione 'reset'
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data: any) => {
-    console.log('Dados de Registro:', data);
-    // TODO: Enviar dados para o backend NestJS
-    alert('Registro simulado! Dados: ' + JSON.stringify(data));
-    navigate('/login');
+  const onSubmit = async (data: any) => { // Tornar a função assíncrona
+    try {
+      // Remover confirmPassword antes de enviar ao backend, pois o backend não precisa dele
+      const { confirmPassword, ...dataToSend } = data;
+
+      // Enviando os dados de registro para o backend
+      const response = await axios.post(`${API_BASE_URL}/auth/signup`, dataToSend);
+
+      console.log('Registro bem-sucedido:', response.data);
+      alert(response.data.message || 'Usuário registrado com sucesso!'); // Exibir mensagem de sucesso
+      reset(); // Opcional: Limpa o formulário após o registro
+      navigate('/login'); // Redireciona para a página de login
+
+    } catch (error: any) { // Capturar erros do axios
+      console.error('Erro no registro:', error);
+      // Extrair mensagem de erro do backend (NestJS)
+      const errorMessage = error.response?.data?.message || 'Erro ao registrar usuário. Tente novamente.';
+      alert(errorMessage);
+    }
   };
 
   return (
+    // ... (restante do seu JSX da página de registro, sem alterações aqui)
     <Box
       sx={{
         display: 'flex',
@@ -56,8 +69,7 @@ const RegisterPage: React.FC = () => {
         alignItems: 'center',
         minHeight: '100vh',
         width: '100vw',
-        backgroundImage: 'url("/background.png")', // Caminho para o background na pasta public
-        // OU: backgroundImage: `url(${backgroundImage})`, se estiver importando
+        backgroundImage: 'url("/background.png")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -65,11 +77,11 @@ const RegisterPage: React.FC = () => {
     >
       <Container
         component="main"
-        maxWidth="xs" // Voltamos para 'xs' para um layout de coluna única mais compacto
+        maxWidth="xs" // Mantido 'xs' para layout de coluna única
         sx={{
           paddingTop: '20px',
           paddingBottom: '20px',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
           borderRadius: 4,
           boxShadow: 5,
           mt: { xs: 2, sm: 4, md: 6 },
@@ -86,8 +98,7 @@ const RegisterPage: React.FC = () => {
         >
           <Box
             component="img"
-            src="/logo.png" // Caminho para a logo na pasta public. Ajuste se o nome do arquivo for diferente.
-            // OU: src={logoImage}, se estiver importando
+            src="/logo.png"
             alt="MyFinance Logo"
             sx={{
               width: 100,
@@ -114,147 +125,21 @@ const RegisterPage: React.FC = () => {
             noValidate
             sx={{ mt: 1 }}
           >
-            {/* Todos os campos agora em uma única coluna */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="nome"
-              label="Nome"
-              autoComplete="given-name"
-              {...register('nome')}
-              error={!!errors.nome}
-              helperText={errors.nome?.message}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="sobrenome"
-              label="Sobrenome"
-              autoComplete="family-name"
-              {...register('sobrenome')}
-              error={!!errors.sobrenome}
-              helperText={errors.sobrenome?.message}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="cpf"
-              label="CPF"
-              autoComplete="off"
-              {...register('cpf')}
-              error={!!errors.cpf}
-              helperText={errors.cpf?.message}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email"
-              autoComplete="email"
-              {...register('email')}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Senha"
-              type="password"
-              id="password"
-              autoComplete="new-password"
-              {...register('password')}
-              error={!!errors.password}
-              helperText={errors.password?.message}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Confirme a Senha"
-              type="password"
-              id="confirmPassword"
-              autoComplete="new-password"
-              {...register('confirmPassword')}
-              error={!!errors.confirmPassword}
-              helperText={errors.confirmPassword?.message}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="cep"
-              label="CEP"
-              autoComplete="postal-code"
-              {...register('cep')}
-              error={!!errors.cep}
-              helperText={errors.cep?.message}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="endereco"
-              label="Endereço"
-              autoComplete="street-address"
-              {...register('endereco')}
-              error={!!errors.endereco}
-              helperText={errors.endereco?.message}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="numero"
-              label="Número"
-              autoComplete="address-line2"
-              {...register('numero')}
-              error={!!errors.numero}
-              helperText={errors.numero?.message}
-            />
-            <TextField
-              margin="normal"
-              fullWidth
-              id="complemento"
-              label="Complemento (Opcional)"
-              autoComplete="address-line3"
-              {...register('complemento')}
-              error={!!errors.complemento}
-              helperText={errors.complemento?.message}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="cidade"
-              label="Cidade"
-              autoComplete="address-level2"
-              {...register('cidade')}
-              error={!!errors.cidade}
-              helperText={errors.cidade?.message}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="estado"
-              label="Estado"
-              autoComplete="address-level1"
-              {...register('estado')}
-              error={!!errors.estado}
-              helperText={errors.estado?.message}
-            />
+            {/* Campos do formulário */}
+            <TextField margin="normal" required fullWidth id="nome" label="Nome" autoComplete="given-name" {...register('nome')} error={!!errors.nome} helperText={errors.nome?.message} />
+            <TextField margin="normal" required fullWidth id="sobrenome" label="Sobrenome" autoComplete="family-name" {...register('sobrenome')} error={!!errors.sobrenome} helperText={errors.sobrenome?.message} />
+            <TextField margin="normal" required fullWidth id="cpf" label="CPF" autoComplete="off" {...register('cpf')} error={!!errors.cpf} helperText={errors.cpf?.message} />
+            <TextField margin="normal" required fullWidth id="email" label="Email" autoComplete="email" {...register('email')} error={!!errors.email} helperText={errors.email?.message} />
+            <TextField margin="normal" required fullWidth label="Senha" type="password" id="password" autoComplete="new-password" {...register('password')} error={!!errors.password} helperText={errors.password?.message} />
+            <TextField margin="normal" required fullWidth label="Confirme a Senha" type="password" id="confirmPassword" autoComplete="new-password" {...register('confirmPassword')} error={!!errors.confirmPassword} helperText={errors.confirmPassword?.message} />
+            <TextField margin="normal" required fullWidth id="cep" label="CEP" autoComplete="postal-code" {...register('cep')} error={!!errors.cep} helperText={errors.cep?.message} />
+            <TextField margin="normal" required fullWidth id="endereco" label="Endereço" autoComplete="street-address" {...register('endereco')} error={!!errors.endereco} helperText={errors.endereco?.message} />
+            <TextField margin="normal" required fullWidth id="numero" label="Número" autoComplete="address-line2" {...register('numero')} error={!!errors.numero} helperText={errors.numero?.message} />
+            <TextField margin="normal" fullWidth id="complemento" label="Complemento (Opcional)" autoComplete="address-line3" {...register('complemento')} error={!!errors.complemento} helperText={errors.complemento?.message} />
+            <TextField margin="normal" required fullWidth id="cidade" label="Cidade" autoComplete="address-level2" {...register('cidade')} error={!!errors.cidade} helperText={errors.cidade?.message} />
+            <TextField margin="normal" required fullWidth id="estado" label="Estado" autoComplete="address-level1" {...register('estado')} error={!!errors.estado} helperText={errors.estado?.message} />
 
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
               Cadastrar
             </Button>
             <Link href="/login" variant="body2">

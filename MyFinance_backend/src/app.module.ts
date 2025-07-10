@@ -1,19 +1,25 @@
+// myfinance-app/backend/src/app.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module'; // Importe o AuthModule
-import { User } from './auth/entities/user.entity'; // Importe a entidade User
+import { AuthModule } from './auth/auth.module';
+import { User } from './auth/entities/user.entity';
+import { UsersModule } from './users/users.module';
+import { CategoriesModule } from './categories/categories.module';
+import { Category } from './categories/entities/category.entity'; // <-- NOVO: Importe a entidade Category
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'db.sqlite',
-      entities: [User], // Adicione a entidade User aqui
+      entities: [User, Category], // <-- NOVO: Adicione Category ao array de entidades
       synchronize: true,
     }),
-    AuthModule, // Adicione o AuthModule aqui
+    AuthModule,
+    UsersModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

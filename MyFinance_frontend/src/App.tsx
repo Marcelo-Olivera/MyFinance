@@ -1,33 +1,93 @@
-// myfinance-app/frontend/src/App.tsx
+// src/App.tsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './components/theme';
+import { jwtDecode } from 'jwt-decode';
 
-// Importe as páginas da nova estrutura
-import LoginPage from './pages/Login';      // Assume que 'index.tsx' é importado por padrão
-import RegisterPage from './pages/Registro'; // Assume que 'index.tsx' é importado por padrão
+// Importe suas páginas
+import RegisterPage from './pages/Registro';
+import LoginPage from './pages/Login';
+import DashboardPage from './pages/Dashboard';
+import AdminUsersPage from './pages/Admin/Users';
+import CategoriesPage from './pages/Categories'; // <-- NOVO: Importe a página de categorias
 
-// Componente de Dashboard (simples, apenas para navegar para ele)
-const DashboardPage: React.FC = () => {
-  return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
-      <h1>Bem-vindo ao Dashboard do MyFinance!</h1>
-      <p>Esta é a página principal após o login.</p>
-    </div>
-  );
+// Componente de Rota Protegida (mantido o mesmo, com allowedRoles)
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  allowedRoles?: string[];
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
+  const accessToken = localStorage.getItem('accessToken');
+
+  if (!accessToken) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles) {
+    try {
+      const decodedToken: { role?: string } = jwtDecode(accessToken);
+      if (!decodedToken.role || !allowedRoles.includes(decodedToken.role)) {
+        alert('Você não tem permissão para acessar esta página.');
+        return <Navigate to="/dashboard" replace />;
+      }
+    } catch (error) {
+      console.error("Erro ao decodificar token:", error);
+      localStorage.removeItem('accessToken');
+      return <Navigate to="/login" replace />;
+    }
+  }
+
+  return <>{children}</>;
 };
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Rota padrão que redireciona para o login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        {/* Adicione outras rotas protegidas aqui no futuro */}
-      </Routes>
-    </Router>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <Routes>
+          {/* Rotas públicas */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Rotas protegidas (para qualquer usuário logado) */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Rota de ADMIN (protegida por papel) */}
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminUsersPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* <-- NOVO: Rota para Gerenciar Categorias --> */}
+          <Route
+            path="/categories"
+            element={
+              <ProtectedRoute> {/* Categorias são para qualquer usuário logado */}
+                <CategoriesPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Adicione outras rotas protegidas aqui no futuro */}
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 }
 

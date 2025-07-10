@@ -5,6 +5,10 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Button, TextField, Typography, Box, Container, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Importe o axios
+
+
+const API_BASE_URL = 'http://localhost:3000'; // URL do seu backend NestJS
 
 // Esquema de validação com Yup
 const schema = yup.object({
@@ -18,11 +22,31 @@ const LoginPage: React.FC = () => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data: any) => {
-    console.log('Dados de Login:', data);
-    // TODO: Enviar dados para o backend NestJS
-    alert('Login simulado! Dados: ' + JSON.stringify(data));
-    navigate('/dashboard'); // Redirecionar para o dashboard após login (simulado)
+  const onSubmit = async (data: any) => { // Tornar a função assíncrona
+    try {
+      // Enviando os dados de login para o backend
+      const response = await axios.post(`${API_BASE_URL}/auth/signin`, {
+        email: data.email,
+        password: data.password,
+      });
+
+      const { accessToken } = response.data; // Extrai o accessToken da resposta
+      console.log('Login bem-sucedido! Token:', accessToken);
+
+      // --- Armazenar o JWT no LocalStorage ---
+      // IMPORTANTE: Para uma aplicação real, considere opções mais seguras
+      // dependendo do contexto (ex: HttpOnly cookies se for usar SSR)
+      localStorage.setItem('accessToken', accessToken);
+
+      alert('Login realizado com sucesso!');
+      navigate('/dashboard'); // Redireciona para o dashboard após o login
+
+    } catch (error: any) { // Capturar erros do axios
+      console.error('Erro no login:', error);
+      // Extrair mensagem de erro do backend (NestJS)
+      const errorMessage = error.response?.data?.message || 'Erro ao fazer login. Credenciais inválidas.';
+      alert(errorMessage);
+    }
   };
 
   return (
@@ -30,43 +54,48 @@ const LoginPage: React.FC = () => {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center', // Centraliza verticalmente
-        alignItems: 'center',     // Centraliza horizontalmente
-        minHeight: '100vh',       // Garante que o Box ocupe 100% da altura da viewport
-        width: '100vw',           // Garante que o Box ocupe 100% da largura da viewport
-        backgroundImage: 'url("/background.png")',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        width: '100vw',
+        backgroundImage: 'url("/background.png")', // Caminho para o background na pasta public
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-      }}>
-      <Container component="main" maxWidth="xs"
-      sx={{
-          //paddingTop: '20px', // Adiciona um padding na parte superior
-          paddingBottom: '20px', // Adiciona um padding na parte inferior
-          backgroundColor: 'rgba(255, 255, 255)', // Fundo branco semi-transparente
-          borderRadius: 4, // Bordas arredondadas para o container
-          boxShadow: 5, // Uma sombra mais forte
-          mt: { xs: 2, sm: 4, md: 6 }, // margin-top diferente para cada breakpoint
-          mb: { xs: 2, sm: 4, md: 6 }, // margin-bottom diferente para cada breakpoint
-        }}>
-        <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      <Container component="main" maxWidth="xs">
+        <Box
+          sx={{
+            p: 4,
+            borderRadius: 2,
+            boxShadow: 3,
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(5px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
           <Box
             component="img"
-            src="/logo.png" // Caminho relativo à pasta public. Altere se o nome do arquivo for diferente.
-            // Se você importou a imagem diretamente (Opção 2), use: src={logoImage}
+            src="/logo.png" // Caminho para a logo na pasta public. Ajuste se o nome do arquivo for diferente.
             alt="MyFinance Logo"
             sx={{
               width: 120, // Ajuste o tamanho da logo conforme sua preferência
-              height: 120, // A altura será ajustada para manter a proporção se a largura for definida
-
+              height: 120,
+              mb: 3,
             }}
           />
-          <Typography component="h1" variant="h5"
-            sx={{ 
-              mt: 2,
+          <Typography
+            component="h1"
+            variant="h5"
+            sx={{
+              color: 'text.primary', 
               mb: 2,
-              fontWeight: 'bold',
-              color: '#1976d2'}}>
-            Login
+            }}
+          >
+            Login MyFinance
           </Typography>
           <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 1 }}>
             <TextField
@@ -80,12 +109,31 @@ const LoginPage: React.FC = () => {
               {...register('email')}
               error={!!errors.email}
               helperText={errors.email?.message}
+              InputLabelProps={{
+                sx: { color: 'text.primary' }
+              }}
+              InputProps={{
+                sx: { color: 'text.primary' }
+              }}
+              sx={{
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'text.secondary', // Cor dourada para a borda
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'text.secondary',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'text.secondary',
+                },
+                '& .MuiFormHelperText-root': {
+                    color: 'text.primary',
+                },
+              }}
             />
             <TextField
               margin="normal"
               required
               fullWidth
-              //name="password"
               label="Senha"
               type="password"
               id="password"
@@ -93,16 +141,54 @@ const LoginPage: React.FC = () => {
               {...register('password')}
               error={!!errors.password}
               helperText={errors.password?.message}
+              InputLabelProps={{
+                sx: { color: 'text.primary' }
+              }}
+              InputProps={{
+                sx: { color: 'text.primary' }
+              }}
+              sx={{
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'text.secondary',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'text.secondary',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'text.secondary',
+                },
+                '& .MuiFormHelperText-root': {
+                    color: 'text.primary',
+                },
+              }}
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{
+                mt: 3,
+                mb: 2,
+                backgroundColor: 'secondary.main', // Cor do tema (ex: verde)
+                '&:hover': {
+                  backgroundColor: 'secondary.dark',
+                },
+                color: 'text.primary', // Cor do texto do botão
+              }}
             >
               Entrar
             </Button>
-            <Link href="/register" variant="body2">
+            <Link
+              href="/register"
+              variant="body2"
+              sx={{
+                color: 'text.secondary', // Cor do tema (ex: dourado)
+                textDecoration: 'none',
+                '&:hover': {
+                  textDecoration: 'underline',
+                },
+              }}
+            >
               {"Não tem uma conta? Cadastre-se"}
             </Link>
           </Box>
