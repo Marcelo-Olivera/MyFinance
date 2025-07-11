@@ -1,6 +1,7 @@
 // myfinance-app/backend/src/categories/entities/category.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm'; // Importe ManyToOne
-import { User } from '../../auth/entities/user.entity'; // Importe a entidade User
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm'; // Importe OneToMany
+import { User } from '../../auth/entities/user.entity';
+import { Transaction } from '../../transactions/entities/transaction.entity'; // <-- NOVO: Importe a entidade Transaction
 
 @Entity()
 export class Category {
@@ -10,14 +11,15 @@ export class Category {
   @Column()
   name: string;
 
-  // Coluna para cor da categoria (opcional, mas bom para o frontend)
   @Column({ nullable: true })
-  color: string; // Ex: '#FF0000'
+  color: string;
 
-  // Relacionamento Many-to-One com User: Muitas categorias para um usuário
-  @ManyToOne(() => User, (user) => user.categories, { onDelete: 'CASCADE' }) // onDelete: 'CASCADE' deleta categorias se o usuário for deletado
-  user?: User; // A instância do usuário à qual esta categoria pertence
+  @ManyToOne(() => User, (user) => user.categories, { onDelete: 'CASCADE' })
+  user?: User;
 
   @Column()
-  userId: number; // A coluna que armazena o ID do usuário no banco de dados
+  userId: number;
+
+  @OneToMany(() => Transaction, (transaction) => transaction.category) // <-- NOVO: Uma categoria tem muitas transações
+  transactions: Transaction[]; // Uma coleção de transações que usam esta categoria
 }

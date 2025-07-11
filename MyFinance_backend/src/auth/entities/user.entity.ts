@@ -1,7 +1,8 @@
 // myfinance-app/backend/src/auth/entities/user.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm'; // Importe OneToMany
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { UserRole } from '../enums/user-role.enum';
-import { Category } from '../../categories/entities/category.entity'; // Importe a entidade Category
+import { Category } from '../../categories/entities/category.entity';
+import { Transaction } from '../../transactions/entities/transaction.entity'; // <-- NOVO: Importe a entidade Transaction
 
 @Entity()
 export class User {
@@ -21,7 +22,9 @@ export class User {
   })
   role: UserRole;
 
-  // Relacionamento One-to-Many com Category: Um usuário tem muitas categorias
-  @OneToMany(() => Category, (category) => category.user) // user.categories é o nome da propriedade no User que terá as categorias
-  categories: Category[]; // Uma coleção de categorias que pertencem a este usuário
+  @OneToMany(() => Category, (category) => category.user)
+  categories: Category[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.user) // <-- NOVO: Um usuário tem muitas transações
+  transactions: Transaction[]; // Uma coleção de transações que pertencem a este usuário
 }
