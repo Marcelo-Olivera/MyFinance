@@ -5,13 +5,13 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from './components/theme';
 import { jwtDecode } from 'jwt-decode';
-
-// Importe suas páginas
+//Paginas importadas
 import RegisterPage from './pages/Registro';
 import LoginPage from './pages/Login';
 import DashboardPage from './pages/Dashboard';
 import AdminUsersPage from './pages/Admin/Users';
-import CategoriesPage from './pages/Categories'; // <-- NOVO: Importe a página de categorias
+import CategoriesPage from './pages/Categories';
+import TransactionsPage from './pages/Transactions'; 
 
 // Componente de Rota Protegida (mantido o mesmo, com allowedRoles)
 interface ProtectedRouteProps {
@@ -30,6 +30,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
     try {
       const decodedToken: { role?: string } = jwtDecode(accessToken);
       if (!decodedToken.role || !allowedRoles.includes(decodedToken.role)) {
+        // Substituir alert por um modal customizado em produção
         alert('Você não tem permissão para acessar esta página.');
         return <Navigate to="/dashboard" replace />;
       }
@@ -74,12 +75,22 @@ function App() {
             }
           />
 
-          {/* <-- NOVO: Rota para Gerenciar Categorias --> */}
+          {/* Rota para Gerenciar Categorias */}
           <Route
             path="/categories"
             element={
               <ProtectedRoute> {/* Categorias são para qualquer usuário logado */}
                 <CategoriesPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* <-- NOVO: Rota para a Página de Transações/Extrato --> */}
+          <Route
+            path="/transactions"
+            element={
+              <ProtectedRoute> {/* Transações são para qualquer usuário logado */}
+                <TransactionsPage />
               </ProtectedRoute>
             }
           />

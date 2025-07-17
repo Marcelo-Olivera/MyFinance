@@ -22,16 +22,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import CategoryFormModal from '../../components/CategoryFormModal'; // <-- IMPORTANTE: Importe o modal
+import CategoryFormModal from '../../components/CategoryFormModal';
+import type { CategoryData } from '../../interfaces/category.interface'// Importa a interface de categoria
+
 
 const API_BASE_URL = 'http://localhost:3000';
 
-interface CategoryData {
-  id: number;
-  name: string;
-  color?: string;
-  userId: number;
-}
+
 
 const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -239,7 +236,15 @@ const CategoriesPage: React.FC = () => {
                           <IconButton
                             aria-label="delete"
                             color="error"
-                            onClick={() => handleDeleteCategory(category.id)}
+                            onClick={() => {
+                              if (category.id !== undefined) { // <-- VERIFICAÇÃO AQUI
+                                handleDeleteCategory(category.id);
+                              } else {
+                                // Caso o ID seja undefined (o que não deveria acontecer para itens na lista)
+                                console.error("Erro: ID da categoria não encontrado para exclusão.");
+                                setError("Não foi possível excluir a categoria: ID inválido.");
+                              }
+                            }}
                           >
                             <DeleteIcon />
                           </IconButton>
