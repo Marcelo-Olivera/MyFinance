@@ -61,17 +61,17 @@ Para o desenvolvimento deste projeto, utilizei um stack tecnológico moderno e e
 A organização do projeto segue uma estrutura modular, separando claramente o frontend e o backend:
 
 MyFinance/
-├── MyFinance_frontend/
-│   ├── public/
-│   ├── src/
-│   └── README.md   <-- README do Frontend
-├── MyFinance_backend/
-│   ├── src/
-│   ├── node_modules/
-│   └── README.md   <-- README do Backend
-├── node_modules/
-├── package.json
-└── README.md       <-- README Principal
+├── MyFinance_frontend/  
+│   ├── public/  
+│   ├── src/  
+│   └── README.md   <-- README do Frontend  
+├── MyFinance_backend/  
+│   ├── src/  
+│   ├── node_modules/  
+│   └── README.md   <-- README do Backend  
+├── node_modules/  
+├── package.json  
+└── README.md       <-- README Principal  
 
 
 ## Como Rodar o Projeto
