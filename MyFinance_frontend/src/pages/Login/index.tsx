@@ -39,7 +39,7 @@ const LoginPage: React.FC = () => {
       localStorage.setItem('accessToken', accessToken);
 
       alert('Login realizado com sucesso!');
-      navigate('/dashboard'); // Redireciona para o dashboard após o login
+      navigate('/home'); // Redireciona para Página Inicial após o login
 
     } catch (error: any) { // Capturar erros do axios
       console.error('Erro no login:', error);

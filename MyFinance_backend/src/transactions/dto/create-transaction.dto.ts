@@ -9,7 +9,7 @@ import {
   Matches,
   IsInt,
 } from 'class-validator';
-import { TransactionType } from '../entities/transaction.entity'; // <-- VERIFIQUE ESTA LINHA E O CAMINHO
+import { TransactionType } from '../enums/transaction-type.enum'; // Para filtros de tipo
 
 export class CreateTransactionDto {
   @IsNumber({}, { message: 'O valor da transação deve ser um número.' })

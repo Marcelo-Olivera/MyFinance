@@ -112,8 +112,8 @@ const CategoriesPage: React.FC = () => {
     }
   };
 
-  const handleGoToDashboard = () => {
-    navigate('/dashboard');
+  const handleGoToTransactions = () => {
+    navigate('/transactions'); // Redireciona para a página de transações
   };
 
   const handleModalClose = () => {
@@ -262,10 +262,10 @@ const CategoriesPage: React.FC = () => {
           <Button
             variant="contained"
             color="secondary"
-            onClick={handleGoToDashboard}
+            onClick={handleGoToTransactions}
             sx={{ width: '100%' }}
           >
-            Voltar para o Dashboard
+            Voltar para Transações
           </Button>
         </Box>
       </Container>

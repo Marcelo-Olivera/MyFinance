@@ -8,7 +8,7 @@ import {
   Matches,
   IsInt,
 } from 'class-validator';
-import { TransactionType } from '../entities/transaction.entity'; // Importe o enum
+import { TransactionType } from '../enums/transaction-type.enum'; // Para filtros de tipo
 
 export class UpdateTransactionDto {
   @IsOptional()

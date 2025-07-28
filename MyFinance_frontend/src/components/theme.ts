@@ -26,8 +26,22 @@ const myFinanceTheme = createTheme({
     },
   },
   typography: {
+
+    fontSize: 14, // Tamanho de fonte padrão
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+
     h1: {
+      fontSize: '3.5rem',
       color: '#C8AE7D', // Dourado
+    },
+    h2: {
+      fontSize: '2.8rem',
+    },
+    h3: {
+      fontSize: '2.2rem',
+    },
+    h4: {
+      fontSize: '1.8rem',
     },
     h5: {
       color: '#E0F2F1', // Usará a nova cor primária de texto para títulos h5 (como em Login/Registro)

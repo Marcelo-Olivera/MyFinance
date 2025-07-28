@@ -2,12 +2,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 import { Category } from '../../categories/entities/category.entity';
-import { text } from 'stream/consumers';
-
-export enum TransactionType { // Garanta que 'export' está aqui
-  INCOME = 'income',
-  EXPENSE = 'expense',
-}
+// ✅ Importa o enum TransactionType do arquivo dedicado
+import { TransactionType } from '../enums/transaction-type.enum';
 
 @Entity()
 export class Transaction {
@@ -24,8 +20,8 @@ export class Transaction {
   date: string;
 
   @Column({
-    type: 'text', // Corrigido para 'text'
-    enum: TransactionType,
+    type: 'text',
+    enum: TransactionType, // ✅ Usa o enum importado
   })
   type: TransactionType;
 
@@ -33,7 +29,7 @@ export class Transaction {
   createdAt: Date;
 
   @Column({ type: 'text', nullable: true })
-  notes: string | null; // <-- DEVE SER 'string | null'
+  notes: string | null;
 
   @ManyToOne(() => User, (user) => user.transactions, { onDelete: 'CASCADE' })
   user?: User;
@@ -42,7 +38,7 @@ export class Transaction {
   userId: number;
 
   @ManyToOne(() => Category, (category) => category.transactions, { onDelete: 'SET NULL', nullable: true })
-  category?: Category | null; // <-- DEVE SER 'Category | null'
+  category?: Category | null;
 
   @Column({ nullable: true })
   categoryId: number | null;

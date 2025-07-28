@@ -5,15 +5,16 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from './components/theme';
 import { jwtDecode } from 'jwt-decode';
-//Paginas importadas
+// Importando as páginas
 import RegisterPage from './pages/Registro';
 import LoginPage from './pages/Login';
 import DashboardPage from './pages/Dashboard';
 import AdminUsersPage from './pages/Admin/Users';
 import CategoriesPage from './pages/Categories';
-import TransactionsPage from './pages/Transactions'; 
+import TransactionsPage from './pages/Transactions';
+import HomePage from './pages/Home';
 
-// Componente de Rota Protegida (mantido o mesmo, com allowedRoles)
+// Componente de Rota Protegida
 interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: string[];
@@ -51,6 +52,7 @@ function App() {
       <Router>
         <Routes>
           {/* Rotas públicas */}
+          {/* ✅ Opção 1: Redireciona a raiz para /login se não houver token, ou para /home se houver */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -79,18 +81,28 @@ function App() {
           <Route
             path="/categories"
             element={
-              <ProtectedRoute> {/* Categorias são para qualquer usuário logado */}
+              <ProtectedRoute>
                 <CategoriesPage />
               </ProtectedRoute>
             }
           />
 
-          {/* <-- NOVO: Rota para a Página de Transações/Extrato --> */}
+          {/* Rota para a Página de Transações/Extrato */}
           <Route
             path="/transactions"
             element={
-              <ProtectedRoute> {/* Transações são para qualquer usuário logado */}
+              <ProtectedRoute>
                 <TransactionsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Rota para a Página Inicial (Home) */}
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <HomePage />
               </ProtectedRoute>
             }
           />

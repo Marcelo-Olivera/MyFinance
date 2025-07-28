@@ -60,7 +60,6 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    // ... (restante do seu JSX da página de registro, sem alterações aqui)
     <Box
       sx={{
         display: 'flex',
@@ -77,7 +76,7 @@ const RegisterPage: React.FC = () => {
     >
       <Container
         component="main"
-        maxWidth="xs" // Mantido 'xs' para layout de coluna única
+        maxWidth="xs"
         sx={{
           paddingTop: '20px',
           paddingBottom: '20px',

@@ -16,39 +16,44 @@ import {
   IconButton,
   Alert,
   Chip,
-  FormControl, // Adicionado para filtros
-  InputLabel, // Adicionado para filtros
-  Select,      // Adicionado para filtros
-  MenuItem,    // Adicionado para filtros
-  TextField,   // Adicionado para filtros de data
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { TransactionType } from '../../enums/transaction-type.enum'; // Importa o enum
-import type { TransactionData } from '../../interfaces/transaction.interface'; // Importa o tipo da transação
-import type { CategoryData } from '../../interfaces/category.interface'; // Importa o tipo da categoria
+import { TransactionType } from '../../enums/transaction-type.enum';
+import type { TransactionData } from '../../interfaces/transaction.interface';
+import type { CategoryData } from '../../interfaces/category.interface';
+import TransactionFormModal from '../../components/TransactionFormModal'; // ✅ NOVO: Importa o modal de transações
 
-const API_BASE_URL = 'http://localhost:3000'; // URL do backend
+const API_BASE_URL = 'http://localhost:3000';
 
 const TransactionsPage: React.FC = () => {
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState<TransactionData[]>([]);
-  const [categories, setCategories] = useState<CategoryData[]>([]); // Para o filtro de categoria
+  const [categories, setCategories] = useState<CategoryData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // --- ESTADOS PARA OS FILTROS ---
-  const [filterType, setFilterType] = useState<string>(''); // 'income', 'expense', ou '' para todos
-  const [filterCategory, setFilterCategory] = useState<number | string>(''); // categoryId ou '' para todos
-  const [filterStartDate, setFilterStartDate] = useState<string>(''); // AAAA-MM-DD
-  const [filterEndDate, setFilterEndDate] = useState<string>('');     // AAAA-MM-DD
+  const [filterType, setFilterType] = useState<string>('');
+  const [filterCategory, setFilterCategory] = useState<number | string>('');
+  const [filterStartDate, setFilterStartDate] = useState<string>('');
+  const [filterEndDate, setFilterEndDate] = useState<string>('');
   // --- FIM ESTADOS PARA OS FILTROS ---
 
-  // Função principal para buscar transações (agora com filtros)
+  // ✅ NOVOS ESTADOS PARA O MODAL DE TRANSAÇÕES ---
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [transactionToEdit, setTransactionToEdit] = useState<TransactionData | undefined>(undefined);
+  // --- FIM DOS NOVOS ESTADOS ---
+
   const fetchTransactions = async () => {
     setLoading(true);
     setError(null);
@@ -59,10 +64,9 @@ const TransactionsPage: React.FC = () => {
         throw new Error('Token de acesso não encontrado. Faça login.');
       }
 
-      // Constrói os parâmetros de query para a API
       const queryParams = new URLSearchParams();
       if (filterType) queryParams.append('type', filterType);
-      if (filterCategory) queryParams.append('categoryId', filterCategory.toString());
+      if (typeof filterCategory === 'number') queryParams.append('categoryId', filterCategory.toString());
       if (filterStartDate) queryParams.append('startDate', filterStartDate);
       if (filterEndDate) queryParams.append('endDate', filterEndDate);
 
@@ -87,12 +91,10 @@ const TransactionsPage: React.FC = () => {
     }
   };
 
-  // Função para buscar categorias (para o filtro de categoria)
   const fetchCategoriesForFilter = async () => {
     try {
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
-        // Este erro será tratado pelo fetchTransactions principal se não houver token
         return;
       }
       const response = await axios.get<CategoryData[]>(`${API_BASE_URL}/categories`, {
@@ -101,27 +103,41 @@ const TransactionsPage: React.FC = () => {
       setCategories(response.data);
     } catch (err) {
       console.error('Erro ao buscar categorias para filtro:', err);
-      // Não define erro global para não bloquear o carregamento de transações
     }
   };
 
-  // Carrega transações e categorias ao montar o componente ou quando filtros mudam
   useEffect(() => {
     fetchTransactions();
-  }, [filterType, filterCategory, filterStartDate, filterEndDate]); // Recarrega sempre que um filtro muda
+  }, [filterType, filterCategory, filterStartDate, filterEndDate]);
 
   useEffect(() => {
-    fetchCategoriesForFilter(); // Carrega categorias uma vez ao montar
+    fetchCategoriesForFilter();
   }, []);
 
-  const handleAddTransaction = () => {
-    // TODO: Abrir modal ou navegar para formulário de adição
-    alert('Funcionalidade de adicionar transação será implementada em breve!');
+  // ✅ Funções para controlar o modal de transações
+  const handleOpenTransactionModal = (transaction?: TransactionData) => {
+    setTransactionToEdit(transaction); // Define a transação para edição (ou undefined para adicionar)
+    setIsTransactionModalOpen(true); // Abre o modal
   };
 
-  const handleEditTransaction = (transactionId: number) => {
-    // TODO: Abrir modal ou navegar para formulário de edição
-    alert(`Funcionalidade de editar transação ${transactionId} será implementada em breve!`);
+  const handleCloseTransactionModal = () => {
+    setIsTransactionModalOpen(false); // Fecha o modal
+    setTransactionToEdit(undefined); // Limpa a transação de edição
+  };
+
+  const handleTransactionModalSuccess = () => {
+    setSuccessMessage('Transação salva com sucesso!'); // Mensagem de sucesso
+    fetchTransactions(); // Recarrega a lista de transações
+  };
+
+  // ✅ Modificado: Chama handleOpenTransactionModal sem argumentos para adicionar
+  const handleAddTransaction = () => {
+    handleOpenTransactionModal();
+  };
+
+  // ✅ Modificado: Recebe o objeto transaction completo para passar ao modal
+  const handleEditTransaction = (transaction: TransactionData) => {
+    handleOpenTransactionModal(transaction);
   };
 
   const handleDeleteTransaction = async (transactionId: number) => {
@@ -137,7 +153,7 @@ const TransactionsPage: React.FC = () => {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setSuccessMessage('Transação excluída com sucesso!');
-      fetchTransactions(); // Recarrega a lista
+      fetchTransactions();
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao excluir transação.');
       if (err.response && err.response.status === 401) {
@@ -148,8 +164,8 @@ const TransactionsPage: React.FC = () => {
     }
   };
 
-  const handleGoToDashboard = () => {
-    navigate('/dashboard');
+  const handleGoToHome = () => {
+    navigate('/home');
   };
 
   const handleGoToCategories = () => {
@@ -169,12 +185,12 @@ const TransactionsPage: React.FC = () => {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        color: 'text.primary', // Cor do texto principal do tema
+        color: 'text.primary',
       }}
     >
       <Container
         component="main"
-        maxWidth="lg" // Aumentado para 'lg' para acomodar a tabela de transações
+        maxWidth="lg"
         sx={{
           p: 4,
           borderRadius: 2,
@@ -210,6 +226,14 @@ const TransactionsPage: React.FC = () => {
               label="Tipo"
               onChange={(e) => setFilterType(e.target.value as string)}
               sx={{ color: 'text.primary', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'text.secondary' }, '& .MuiSvgIcon-root': { color: 'text.secondary' } }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    color: 'white',
+                  },
+                },
+              }}
             >
               <MenuItem sx={{color: '#000'}} value="">Todos</MenuItem>
               <MenuItem sx={{color: '#000'}} value={TransactionType.INCOME}>Receita</MenuItem>
@@ -224,6 +248,14 @@ const TransactionsPage: React.FC = () => {
               label="Categoria"
               onChange={(e) => setFilterCategory(e.target.value as number)}
               sx={{ color: 'text.primary', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'text.secondary' }, '& .MuiSvgIcon-root': { color: 'text.secondary' } }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    color: 'white',
+                  },
+                },
+              }}
             >
               <MenuItem sx={{color: '#000'}} value="">Todas</MenuItem>
               {categories.map((cat) => (
@@ -292,7 +324,7 @@ const TransactionsPage: React.FC = () => {
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
                     <TableCell component="th" scope="row" sx={{ color: 'text.primary' }}>
-                      {new Date(transaction.date + 'T00:00:00').toLocaleDateString('pt-BR')} {/* Adicionado T00:00:00 para evitar problemas de fuso horário */}
+                      {new Date(transaction.date + 'T00:00:00').toLocaleDateString('pt-BR')}
                     </TableCell>
                     <TableCell sx={{ color: 'text.primary' }}>{transaction.description}</TableCell>
                     <TableCell sx={{ color: 'text.primary' }}>
@@ -320,7 +352,15 @@ const TransactionsPage: React.FC = () => {
                       <IconButton
                         aria-label="edit"
                         color="info"
-                        onClick={() => handleEditTransaction(transaction.id)}
+                        // ✅ Modificado: Passa o objeto transaction completo para o modal
+                        onClick={() => {
+                          if (transaction.id !== undefined) {
+                            handleEditTransaction(transaction); // Passa o objeto completo
+                          } else {
+                            console.error("Erro: ID da transação é undefined na tentativa de edição.");
+                            setError("Não foi possível editar a transação: ID inválido ou não encontrado.");
+                          }
+                        }}
                         sx={{ mr: 1 }}
                       >
                         <EditIcon />
@@ -328,7 +368,14 @@ const TransactionsPage: React.FC = () => {
                       <IconButton
                         aria-label="delete"
                         color="error"
-                        onClick={() => handleDeleteTransaction(transaction.id)}
+                        onClick={() => {
+                          if (transaction.id !== undefined) {
+                            handleDeleteTransaction(transaction.id);
+                          } else {
+                            console.error("Erro: ID da transação é undefined na tentativa de exclusão.");
+                            setError("Não foi possível excluir a transação: ID inválido ou não encontrado.");
+                          }
+                        }}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -345,11 +392,11 @@ const TransactionsPage: React.FC = () => {
             variant="contained"
             color="primary"
             startIcon={<AddIcon />}
-            onClick={handleAddTransaction}
+            onClick={handleAddTransaction} // ✅ Chama handleAddTransaction para abrir o modal
           >
             Adicionar Nova Transação
           </Button>
-          <Box sx={{ display: 'flex', gap: 2 }}> {/* Grupo de botões de navegação */}
+          <Box sx={{ display: 'flex', gap: 2 }}>
             <Button
               variant="outlined"
               color="info"
@@ -360,13 +407,23 @@ const TransactionsPage: React.FC = () => {
             <Button
               variant="contained"
               color="secondary"
-              onClick={handleGoToDashboard}
+              onClick={handleGoToHome}
             >
-              Voltar para o Dashboard
+              Voltar para Página Inicial
             </Button>
           </Box>
         </Box>
       </Container>
+
+      {/* ✅ NOVO: Renderiza o TransactionFormModal */}
+      <TransactionFormModal
+        open={isTransactionModalOpen}
+        onClose={handleCloseTransactionModal}
+        onSuccess={handleTransactionModalSuccess}
+        transactionToEdit={transactionToEdit} // Passa a transação para edição (ou undefined para adicionar)
+      />
+      {/* --- Fim da Renderização do TransactionFormModal --- */}
+
     </Box>
   );
 };
