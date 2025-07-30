@@ -89,13 +89,8 @@ const AdminUsersPage: React.FC = () => {
     fetchUsers();
   }, []); // Array de dependências vazio para rodar apenas uma vez na montagem
 
-  const handleGoToDashboard = () => {
-    navigate('/dashboard');
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    navigate('/login');
+  const handleGoToHome = () => {
+    navigate('/home');
   };
 
   return (
@@ -148,7 +143,7 @@ const AdminUsersPage: React.FC = () => {
             <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
               {error}
             </Alert>
-            <Button variant="contained" onClick={handleGoToDashboard} sx={{ mt: 2 }}>
+            <Button variant="contained" onClick={handleGoToHome} sx={{ mt: 2 }}>
               Voltar para o Dashboard
             </Button>
           </Box>
@@ -193,18 +188,11 @@ const AdminUsersPage: React.FC = () => {
 
         <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
           <Button
-            variant="outlined"
-            color="primary"
-            onClick={handleGoToDashboard}
-          >
-            Voltar para o Dashboard
-          </Button>
-          <Button
             variant="contained"
             color="secondary"
-            onClick={handleLogout}
+            onClick={handleGoToHome}
           >
-            Sair
+            Voltar para a Página Inicial
           </Button>
         </Box>
       </Container>

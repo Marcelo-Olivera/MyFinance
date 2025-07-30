@@ -10,16 +10,14 @@ import {
   Card,
   CardContent,
   CardActions,
-  Icon // Para ícones nos cards
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney'; // Exemplo de ícone para saldo
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'; // Exemplo de ícone para receitas
-import CreditCardOffIcon from '@mui/icons-material/CreditCardOff'; // Exemplo de ícone para despesas
 import ListAltIcon from '@mui/icons-material/ListAlt'; // Ícone para extrato/transações
 import DashboardIcon from '@mui/icons-material/Dashboard'; // Ícone para dashboard
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'; // Ícone para Sair/Logout
+import PeopleIcon from '@mui/icons-material/People'; // Ícone para Gerenciamento de Usuários
+import { jwtDecode } from 'jwt-decode'; // ✅ NOVO: Importa jwtDecode
 
 const API_BASE_URL = 'http://localhost:3000'; // URL do backend
 
@@ -30,11 +28,18 @@ interface FinancialSummary {
   balance: number; // totalIncome - totalExpense
 }
 
+// Interface para o token decodificado (para pegar o role)
+interface DecodedToken {
+  role?: string;
+  // Outras propriedades do seu token, se houver (ex: sub, email, iat, exp)
+}
+
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null); // ✅ NOVO: Estado para o papel do usuário
 
   // Função para buscar o resumo financeiro (receitas/despesas totais)
   const fetchFinancialSummary = async () => {
@@ -45,7 +50,18 @@ const HomePage: React.FC = () => {
       if (!accessToken) {
         throw new Error('Token de acesso não encontrado. Faça login.');
       }
-      
+
+      // ✅ NOVO: Decodifica o token para obter o papel do usuário
+      try {
+        const decoded: DecodedToken = jwtDecode(accessToken);
+        setUserRole(decoded.role || null);
+      } catch (decodeError) {
+        console.error("Erro ao decodificar token no Home Page:", decodeError);
+        localStorage.removeItem('accessToken');
+        navigate('/login');
+        return;
+      }
+
       const response = await axios.get<FinancialSummary>(`${API_BASE_URL}/transactions/summary`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -78,6 +94,7 @@ const HomePage: React.FC = () => {
     }).format(value);
   };
 
+  // Função para lidar com o logout
   const handleLogout = () => {
     localStorage.removeItem('accessToken'); // Remove o token de acesso
     navigate('/login'); // Redireciona para a página de login
@@ -153,7 +170,6 @@ const HomePage: React.FC = () => {
             flexWrap: 'wrap', // Permite que os itens quebrem para a próxima linha
             gap: 3, // Espaçamento entre os cards
             width: '100%',
-            mt: 2,
             justifyContent: 'center', // Centraliza os cards quando há menos de 3 por linha
           }}
         >
@@ -187,7 +203,8 @@ const HomePage: React.FC = () => {
               </Button>
             </CardActions>
           </Card>
-          {/* Card para Dashboard (futuro) */}
+
+          {/* Card para Dashboard*/}
           <Card
             sx={{
               backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -217,6 +234,41 @@ const HomePage: React.FC = () => {
               </Button>
             </CardActions>
           </Card>
+
+          {/* ✅ NOVO: Renderiza o Card de Gerenciamento de Usuários APENAS SE o papel for 'ADMIN' */}
+          {userRole === 'ADMIN' && (
+            <Card
+              sx={{
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                borderRadius: 2,
+                flex: '1 1 calc(33.33% - 24px)',
+                maxWidth: 'calc(33.33% - 24px)',
+                minWidth: { xs: '100%', sm: 'calc(50% - 16px)', md: 'calc(33.33% - 24px)' },
+                boxSizing: 'border-box',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }}
+            >
+              <CardContent sx={{ textAlign: 'center' }}>
+                <PeopleIcon sx={{ fontSize: 40, mb: 1 }} />
+                <Typography variant="h6" component="div">
+                  Gerenciar Usuários
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                  Acesso para administração de contas.
+                </Typography>
+              </CardContent>
+              <CardActions sx={{ justifyContent: 'center' }}>
+                <Button size="small" variant="contained" color="primary" onClick={() => navigate('/admin/users')}>
+                  Administrar
+                </Button>
+              </CardActions>
+            </Card>
+          )}
+
+          {/* Card para Sair */}
           <Card
             sx={{
               backgroundColor: 'rgba(255, 255, 255, 0.1)',
