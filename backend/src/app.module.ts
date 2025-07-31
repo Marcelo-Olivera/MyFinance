@@ -14,10 +14,13 @@ import { TransactionsModule } from './transactions/transactions.module'; // <-- 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'db.sqlite',
+      type: 'postgres',
+      url: process.env.DATABASE_URL, 
       entities: [User, Category, Transaction],
       synchronize: true,
+      ssl: {
+        rejectUnauthorized: false 
+      }
     }),
     AuthModule,
     UsersModule,
