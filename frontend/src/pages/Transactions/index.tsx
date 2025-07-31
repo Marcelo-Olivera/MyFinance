@@ -237,7 +237,7 @@ const TransactionsPage: React.FC = () => {
             >
               <MenuItem sx={{color: '#000'}} value="">Todos</MenuItem>
               <MenuItem sx={{color: '#000'}} value={TransactionType.INCOME}>Receita</MenuItem>
-              <MenuItem sx={{color: '#000'}} value={TransactionType.EXPENSE}>Despesa</MenuItem>
+              <MenuItem sx={{color: '#000'}} value={TransactionType.OUTCOME}>Despesa</MenuItem>
             </Select>
           </FormControl>
 
@@ -339,7 +339,7 @@ const TransactionsPage: React.FC = () => {
                       )}
                     </TableCell>
                     <TableCell align="right" sx={{ color: transaction.type === TransactionType.INCOME ? 'lightgreen' : 'error.main', fontWeight: 'bold' }}>
-                      {transaction.type === TransactionType.EXPENSE ? '-' : ''}R$ {transaction.amount.toFixed(2).replace('.', ',')}
+                      {transaction.type === TransactionType.OUTCOME ? '-' : ''}R$ {transaction.amount.toFixed(2).replace('.', ',')}
                     </TableCell>
                     <TableCell sx={{ color: 'text.primary' }}>
                         <Chip
