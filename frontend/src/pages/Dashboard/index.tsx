@@ -320,7 +320,7 @@ const DashboardPage: React.FC = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {dashboardData.incomeByCategory.map((row, index) => (
+                        {dashboardData.incomeByCategory.map((row, _index) => (
                           <TableRow
                             key={row.categoryName}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -369,7 +369,7 @@ const DashboardPage: React.FC = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {dashboardData.expenseByCategory.map((row, index) => (
+                        {dashboardData.expenseByCategory.map((row, _index) => (
                           <TableRow
                             key={row.categoryName}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
