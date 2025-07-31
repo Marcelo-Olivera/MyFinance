@@ -6,7 +6,7 @@ async function bootstrap() {
 
   // Configuração de CORS para permitir requisições do frontend Vite
   app.enableCors({
-    origin:  'https://myfinance-frontend-xyz.vercel.app', 
+    origin:  'https://myfinance-blue.vercel.app', 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
