@@ -5,7 +5,7 @@ import DeleteIcon from '@mui/icons-material/Delete'; // Ícone para o botão de 
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3000'; // URL do seu backend NestJS
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Interface para o tipo de usuário que esperamos do backend
 interface UserData {

@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Cores para os gráficos - você pode personalizar!
 const COLORS = [

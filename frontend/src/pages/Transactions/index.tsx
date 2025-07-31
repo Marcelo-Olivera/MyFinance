@@ -32,7 +32,7 @@ import type { TransactionData } from '../../interfaces/transaction.interface';
 import type { CategoryData } from '../../interfaces/category.interface';
 import TransactionFormModal from '../../components/TransactionFormModal'; // ✅ NOVO: Importa o modal de transações
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const TransactionsPage: React.FC = () => {
   const navigate = useNavigate();

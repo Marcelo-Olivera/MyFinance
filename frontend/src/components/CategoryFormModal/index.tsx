@@ -29,7 +29,8 @@ interface CategoryFormModalProps {
   categoryToEdit?: CategoryData; // Opcional para edição
 }
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 
 // CORES PREDEFINIDAS PARA SELEÇÃO
 const predefinedColors = [

@@ -26,7 +26,7 @@ import CategoryFormModal from '../../components/CategoryFormModal';
 import type { CategoryData } from '../../interfaces/category.interface'// Importa a interface de categoria
 
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 
 

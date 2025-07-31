@@ -30,7 +30,7 @@ import { TransactionType } from '../../enums/transaction-type.enum';
 import type { TransactionData } from '../../interfaces/transaction.interface';
 import type { CategoryData } from '../../interfaces/category.interface';
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Interface de props para o modal
 interface TransactionFormModalProps {

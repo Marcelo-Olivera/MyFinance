@@ -19,7 +19,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp'; // Ícone para Sair/L
 import PeopleIcon from '@mui/icons-material/People'; // Ícone para Gerenciamento de Usuários
 import { jwtDecode } from 'jwt-decode'; // ✅ NOVO: Importa jwtDecode
 
-const API_BASE_URL = 'http://localhost:3000'; // URL do backend
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Interface para os dados de resumo financeiro (totais)
 interface FinancialSummary {

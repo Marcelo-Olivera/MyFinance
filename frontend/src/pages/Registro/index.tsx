@@ -7,8 +7,8 @@ import { Button, TextField, Typography, Box, Container, Link } from '@mui/materi
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; // Importe o axios
 
-// --- Defina a URL base do seu backend ---
-const API_BASE_URL = 'http://localhost:3000'; // URL do seu backend NestJS
+
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Esquema de validação com Yup (mantido o mesmo)
 const schema = yup.object({
