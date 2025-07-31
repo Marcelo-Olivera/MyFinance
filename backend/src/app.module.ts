@@ -14,12 +14,12 @@ import { TransactionsModule } from './transactions/transactions.module'; // <-- 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: process.env.DATABASE_URL, 
+      type: 'postgres', // MUDOU: Agora é 'postgres'
+      url: process.env.DATABASE_URL, // NOVO: Usa a variável de ambiente
       entities: [User, Category, Transaction],
       synchronize: true,
       ssl: {
-        rejectUnauthorized: false 
+        rejectUnauthorized: false // NOVO: Necessário para a conexão com o Render
       }
     }),
     AuthModule,

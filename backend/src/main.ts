@@ -6,7 +6,7 @@ async function bootstrap() {
 
   // Configuração de CORS para permitir requisições do frontend Vite
   app.enableCors({
-    origin: 'http://localhost:5173', // **MUITO IMPORTANTE:** Ajuste para a URL exata do seu frontend Vite
+    origin:  'https://myfinance-frontend-xyz.vercel.app', 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
