@@ -53,7 +53,7 @@ const schema = yup.object({
     .required('Data é obrigatória')
     .matches(/^\d{4}-\d{2}-\d{2}$/, 'Formato de data inválido (AAAA-MM-DD)'),
   type: yup.string()
-    .oneOf([TransactionType.INCOME, TransactionType.EXPENSE], 'Tipo inválido')
+    .oneOf([TransactionType.INCOME, TransactionType.OUTCOME], 'Tipo inválido')
     .required('Tipo é obrigatório'),
   categoryId: yup.number()
     .nullable()
@@ -128,7 +128,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
         amount: undefined,
         description: '',
         date: new Date().toISOString().split('T')[0],
-        type: TransactionType.EXPENSE,
+        type: TransactionType.OUTCOME,
         categoryId: null,
         notes: null,
       });
@@ -286,7 +286,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                 label="Receita"
               />
               <FormControlLabel
-                value={TransactionType.EXPENSE}
+                value={TransactionType.OUTCOME}
                 control={<Radio sx={{ color: 'red', '&.Mui-checked': { color: 'red' } }} />}
                 label="Despesa"
               />
