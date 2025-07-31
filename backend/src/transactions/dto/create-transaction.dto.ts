@@ -26,7 +26,7 @@ export class CreateTransactionDto {
   @IsNotEmpty({ message: 'A data é obrigatória.' })
   date: string;
 
-  @IsEnum(TransactionType, { message: 'O tipo da transação deve ser "income" ou "expense".' })
+  @IsEnum(TransactionType, { message: 'O tipo da transação deve ser "income" ou "outcome".' })
   type: TransactionType;
 
   @IsOptional()

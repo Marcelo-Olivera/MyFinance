@@ -26,7 +26,7 @@ export class UpdateTransactionDto {
   date?: string;
 
   @IsOptional()
-  @IsEnum(TransactionType, { message: 'O tipo da transação deve ser "income" ou "expense".' })
+  @IsEnum(TransactionType, { message: 'O tipo da transação deve ser "income" ou "outcome".' })
   type?: TransactionType;
 
   @IsOptional()
