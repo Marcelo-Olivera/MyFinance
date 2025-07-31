@@ -145,7 +145,7 @@ export class TransactionsService {
       const amountAsNumber = parseFloat(transaction.amount.toString());
       if (transaction.type === TransactionType.INCOME) {
         totalIncome += amountAsNumber;
-      } else if (transaction.type === TransactionType.EXPENSE) {
+      } else if (transaction.type === TransactionType.OUTCOME) {
         totalExpense += amountAsNumber;
       }
     });
@@ -203,7 +203,7 @@ export class TransactionsService {
         const current = incomeMap.get(categoryName) || { amount: 0, categoryColor: categoryColor };
         current.amount += amountAsNumber;
         incomeMap.set(categoryName, current);
-      } else if (transaction.type === TransactionType.EXPENSE) {
+      } else if (transaction.type === TransactionType.OUTCOME) {
         const current = expenseMap.get(categoryName) || { amount: 0, categoryColor: categoryColor };
         current.amount += amountAsNumber;
         expenseMap.set(categoryName, current);
