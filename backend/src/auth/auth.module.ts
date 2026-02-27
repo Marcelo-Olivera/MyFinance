@@ -12,10 +12,8 @@ import { JwtStrategy } from './strategy/jwt.strategy'; // Importe sua estratégi
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: 'superSecretKey123', // DEVE SER O MESMO SECRET!
-      signOptions: {
-        expiresIn: 3600,
-      },
+      secret: process.env.JWT_SECRET ?? 'fallback_secret',
+      signOptions: { expiresIn: 3600 },
     }),
     TypeOrmModule.forFeature([User]),
   ],
