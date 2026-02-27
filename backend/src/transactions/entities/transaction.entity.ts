@@ -19,10 +19,7 @@ export class Transaction {
   @Column({ type: 'date' })
   date: string;
 
-  @Column({
-    type: 'text',
-    enum: TransactionType, // ✅ Usa o enum importado
-  })
+  @Column({type: 'text',})
   type: TransactionType;
 
   @CreateDateColumn()
